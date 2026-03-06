@@ -1,0 +1,13 @@
+2.1.1 reverse-shell via injection de script shell
+Pour éviter la détection des anti-virus et autres systems de sécurités, on a utlisé une string obfuscated qui est une chaîne de caractères contenant du script shell codifié qui sera directement injecté dans la memoire vive (RAM) de la cible et y sera executer, ce qui va ensuite génerer un terminal shell de la cible et va directement le renvoyer à l'attaquant et après on peut faire l’exploitaion à distance.
+	2.1.2 méthode de livraison
+Pour livrer le fichier executable à la cible, on peut utliser un clé USB ou autresa dispositis amovibles, google drive, télechargement insoupçonable en utilisant des liens par exemple, mailing injection. 
+Les méthodes comme cheval de Troie(dissimuler les executables malveillants dans des application legitimes), injection de publicité(utiliser des réseaux publicitaires pour diffuser des publicités malveillantes sur des sites web légitimes), Ingénierie sociale(convaincre les utilisateurs de télécharger et d'exécuter un fichier en se faisant passer pour une personne de confiance ou en utilisant d'autres techniques de manipulation psychologique), Exploitation de macros(envoyer des fichiers avec des macros intégrées qui téléchargent et exécutent le fichier malveillant) sont envisageable .
+Le droit de travail est un ensemble des règles régissant les relations individuelles
+du travail (relation entre un employeur et les travailleurs) et des relations collectives
+(groupement de travailleurs et d’employeurs qui sont liés par un même syndicat ou
+patronat) qui lui sont subordonnés.
+Ce droit, ne se comprend et ne se pratique qu’en lien avec d’autres branches.
+C’est une branche du droit social, lequel se compose essentiellement le droit du travail et
+de la sécurité sociale, d’une part. C’est une branche du droit privé qui régit une relation
+professionnelle entre un employeur et travailleur, d’autre part.

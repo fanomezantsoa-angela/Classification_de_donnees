@@ -1,0 +1,119 @@
+import {
+  Tablelvl2Context_default
+} from "./chunk-D2DGRX3U.js";
+import {
+  useDefaultProps
+} from "./chunk-5QKZIJET.js";
+import {
+  clsx_default,
+  composeClasses,
+  generateUtilityClass,
+  generateUtilityClasses,
+  require_jsx_runtime,
+  styled_default
+} from "./chunk-DHCTHZOB.js";
+import {
+  require_prop_types
+} from "./chunk-ZNVVQF6B.js";
+import {
+  require_react
+} from "./chunk-TWJRYSII.js";
+import {
+  __toESM
+} from "./chunk-DC5AMYBS.js";
+
+// node_modules/@mui/material/TableFooter/TableFooter.js
+var React = __toESM(require_react());
+var import_prop_types = __toESM(require_prop_types());
+
+// node_modules/@mui/material/TableFooter/tableFooterClasses.js
+function getTableFooterUtilityClass(slot) {
+  return generateUtilityClass("MuiTableFooter", slot);
+}
+var tableFooterClasses = generateUtilityClasses("MuiTableFooter", ["root"]);
+var tableFooterClasses_default = tableFooterClasses;
+
+// node_modules/@mui/material/TableFooter/TableFooter.js
+var import_jsx_runtime = __toESM(require_jsx_runtime());
+var useUtilityClasses = (ownerState) => {
+  const {
+    classes
+  } = ownerState;
+  const slots = {
+    root: ["root"]
+  };
+  return composeClasses(slots, getTableFooterUtilityClass, classes);
+};
+var TableFooterRoot = styled_default("tfoot", {
+  name: "MuiTableFooter",
+  slot: "Root",
+  overridesResolver: (props, styles) => styles.root
+})({
+  display: "table-footer-group"
+});
+var tablelvl2 = {
+  variant: "footer"
+};
+var defaultComponent = "tfoot";
+var TableFooter = React.forwardRef(function TableFooter2(inProps, ref) {
+  const props = useDefaultProps({
+    props: inProps,
+    name: "MuiTableFooter"
+  });
+  const {
+    className,
+    component = defaultComponent,
+    ...other
+  } = props;
+  const ownerState = {
+    ...props,
+    component
+  };
+  const classes = useUtilityClasses(ownerState);
+  return (0, import_jsx_runtime.jsx)(Tablelvl2Context_default.Provider, {
+    value: tablelvl2,
+    children: (0, import_jsx_runtime.jsx)(TableFooterRoot, {
+      as: component,
+      className: clsx_default(classes.root, className),
+      ref,
+      role: component === defaultComponent ? null : "rowgroup",
+      ownerState,
+      ...other
+    })
+  });
+});
+true ? TableFooter.propTypes = {
+  // ┌────────────────────────────── Warning ──────────────────────────────┐
+  // │ These PropTypes are generated from the TypeScript type definitions. │
+  // │    To update them, edit the d.ts file and run `pnpm proptypes`.     │
+  // └─────────────────────────────────────────────────────────────────────┘
+  /**
+   * The content of the component, normally `TableRow`.
+   */
+  children: import_prop_types.default.node,
+  /**
+   * Override or extend the styles applied to the component.
+   */
+  classes: import_prop_types.default.object,
+  /**
+   * @ignore
+   */
+  className: import_prop_types.default.string,
+  /**
+   * The component used for the root node.
+   * Either a string to use a HTML element or a component.
+   */
+  component: import_prop_types.default.elementType,
+  /**
+   * The system prop that allows defining system overrides as well as additional CSS styles.
+   */
+  sx: import_prop_types.default.oneOfType([import_prop_types.default.arrayOf(import_prop_types.default.oneOfType([import_prop_types.default.func, import_prop_types.default.object, import_prop_types.default.bool])), import_prop_types.default.func, import_prop_types.default.object])
+} : void 0;
+var TableFooter_default = TableFooter;
+
+export {
+  getTableFooterUtilityClass,
+  tableFooterClasses_default,
+  TableFooter_default
+};
+//# sourceMappingURL=chunk-ZKARC6IT.js.map

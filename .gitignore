@@ -1,0 +1,8 @@
+Classification_Data_Front/node_modules/
+
+# Ignorer les fichiers pycache du back
+Classification_Data_Back/__pycache__/
+
+# Ignorer les fichiers .env
+Classification_Data_Front/.env
+Classification_Data_Back/.env

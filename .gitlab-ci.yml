@@ -1,0 +1,27 @@
+stages:
+  - deploy
+
+deploy_to_server:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client rsync
+    # Dossier SSH
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    # Ajouter le serveur aux known_hosts (évite l'interaction)
+    - ssh-keyscan -H ${IP_DU_SERVEUR} >> ~/.ssh/known_hosts
+  script:
+    # Copier les fichiers vers le serveur (par exemple avec rsync ou scp)
+    - rsync -az --delete . mica@${IP_DU_SERVEUR}:/home/mica/deploy/
+
+    # Lancer docker-compose sur le serveur
+    - ssh mica@${IP_DU_SERVEUR} '
+        cd /home/mica/deploy &&
+        docker-compose down &&
+        docker-compose build --no-cache &&
+        docker-compose up -d
+      '
+  only:
+    - main
