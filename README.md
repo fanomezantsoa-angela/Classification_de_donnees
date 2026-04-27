@@ -1,93 +1,221 @@
-# Classification_Data
+# Classification de Données
 
+Application web full-stack de gestion et de classification automatique de documents par intelligence artificielle.
 
+## Présentation
 
-## Getting started
+Cette application permet de téléverser des documents (PDF, DOCX, TXT), d'en extraire automatiquement les paragraphes, puis de les classifier dans des catégories définies par l'utilisateur via l'API OpenAI (GPT-4o-mini). Elle offre également une recherche avancée multi-critères sur l'ensemble du corpus documentaire.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Architecture
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/stage261038/classification_data.git
-git branch -M main
-git push -uf origin main
+Classification_de_donnees/
+├── Classification_Data_Back/   # API REST Flask (Python)
+├── Classification_Data_Front/  # Interface React (Vite)
+└── docker-compose.yml          # Orchestration des services
 ```
 
-## Integrate with your tools
+### Stack technique
 
-- [ ] [Set up project integrations](https://gitlab.com/stage261038/classification_data/-/settings/integrations)
+| Couche          | Technologie                                            |
+|-----------------|--------------------------------------------------------|
+| Backend         | Python 3.11, Flask 2.3, Flask-JWT-Extended, SQLAlchemy |
+| Base de données | PostgreSQL 15                                          |
+| IA              | OpenAI GPT-4o-mini                                     |
+| Frontend        | React 18, Vite, Material UI, Tailwind CSS, Chart.js    |
+| Déploiement     | Docker, Docker Compose, GitLab CI/CD                   |
 
-## Collaborate with your team
+## Fonctionnalités
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Gestion des documents
+- Téléversement de fichiers (PDF, DOCX, TXT — max 16 Mo)
+- Extraction automatique des paragraphes avec filtrage des titres et en-têtes
+- Fusion des paragraphes courts et découpe des paragraphes trop longs (> 4 000 caractères)
+- Visualisation des fichiers dans le navigateur
+- CRUD complet (ajout, consultation, modification, suppression)
 
-## Test and Deploy
+### Classification par IA
+- Création de catégories avec label et description
+- Classification automatique des paragraphes d'un document via GPT-4o-mini
+- Attribution d'une catégorie à chaque paragraphe selon la description
+- Statistiques par catégorie (nombre de paragraphes classifiés)
 
-Use the built-in continuous integration in GitLab.
+### Recherche avancée
+- Recherche globale (titre, auteur, contenu)
+- Filtres combinables : titre, auteur, contenu, catégorie, plage de dates
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Authentification
+- Inscription et connexion avec hachage des mots de passe (Werkzeug)
+- Authentification JWT (access token + refresh token)
+- Déconnexion avec blacklist des tokens
 
-***
+## Modèle de données
 
-# Editing this README
+```
+User ──< Document ──< Paragraph >── Categorie
+ └──────────────────────────────────────────┘
+           (l'utilisateur crée aussi des catégories)
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+| Modèle    | Champs principaux                                          |
+|-----------|------------------------------------------------------------|
+| User      | nom, email, motdepasse (hashé), etablissement, status      |
+| Document  | titre, auteur, date_ajout, file_path, user_id              |
+| Paragraph | contenu, documentId, categorie_id (nullable)               |
+| Categorie | label, description, user_id                                |
 
-## Suggestions for a good README
+## API REST — Endpoints principaux
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Authentification
+| Méthode | Route         | Description               | Auth |
+|---------|---------------|---------------------------|------|
+| POST    | /createUser/  | Créer un compte           | Non  |
+| POST    | /login/       | Connexion (retourne JWT)  | Non  |
+| POST    | /refresh/     | Renouveler l'access token | Oui  |
+| POST    | /logout/      | Déconnexion               | Oui  |
 
-## Name
-Choose a self-explaining name for your project.
+### Documents
+| Méthode | Route                           | Description                            | Auth |
+|---------|---------------------------------|----------------------------------------|------|
+| POST    | /addDocument/                   | Téléverser un document                 | Oui  |
+| GET     | /listDocuments/                 | Lister tous les documents              | Oui  |
+| GET     | /document/`<id>`                | Détail d'un document                   | Oui  |
+| PUT     | /document/`<id>`                | Modifier un document                   | Oui  |
+| DELETE  | /SupprimerDoc/`<id>`            | Supprimer un document                  | Oui  |
+| GET     | /documents/uncategorized/       | Documents avec paragraphes non classifiés | Oui |
+| POST    | /search_advanced/               | Recherche avancée multi-critères       | Oui  |
+| GET     | /Document/search?query=         | Recherche par titre                    | Oui  |
+| GET     | /documents/uploads/`<filename>` | Visualiser un fichier                  | Non  |
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Catégories
+| Méthode | Route                             | Description                         | Auth |
+|---------|-----------------------------------|-------------------------------------|------|
+| POST    | /addCategorie/                    | Créer une catégorie                 | Oui  |
+| GET     | /listCategories/                  | Lister les catégories               | Oui  |
+| PUT     | /categorie/`<id>`                 | Modifier une catégorie              | Oui  |
+| DELETE  | /SupprimerCategorie/`<id>`        | Supprimer une catégorie             | Oui  |
+| POST    | /Classification/`<documentId>`   | Classifier les paragraphes d'un doc | Oui  |
+| GET     | /Categorie/search?query=          | Rechercher une catégorie            | Oui  |
+| GET     | /Categorie/statistique            | Statistiques par catégorie          | Oui  |
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Paragraphes
+| Méthode | Route                                    | Description                  | Auth |
+|---------|------------------------------------------|------------------------------|------|
+| GET     | /Paragraphs/                             | Lister tous les paragraphes  | Non  |
+| GET     | /paragraphs/by_category/`<categorie_id>` | Paragraphes par catégorie    | Non  |
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Installation et démarrage
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Prérequis
+- [Docker](https://docs.docker.com/get-docker/) et Docker Compose installés
+- Clé API OpenAI (pour la classification automatique)
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Démarrage rapide avec Docker
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```bash
+# Cloner le dépôt
+git clone <url-du-depot>
+cd Classification_de_donnees
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+# Créer le fichier d'environnement pour le backend
+echo "OPENAI_API_KEY=sk-votre-cle-openai" > Classification_Data_Back/.env
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+# Lancer tous les services
+docker-compose up -d
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Les services sont accessibles sur :
+- **Frontend** : http://localhost:3030
+- **Backend API** : http://localhost:5005
+- **PostgreSQL** : interne au réseau Docker (non exposé)
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Développement local
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+#### Backend (Flask)
 
-## License
-For open source projects, say how it is licensed.
+```bash
+cd Classification_Data_Back
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+# Créer un environnement virtuel
+python -m venv venv
+source venv/bin/activate       # Linux/Mac
+# ou : venv\Scripts\activate   # Windows
+
+pip install -r requirements.txt
+
+# Configurer la base de données (modifier l'URI dans hello.py si besoin)
+# Par défaut : postgresql://postgres:postgres@localhost:5432/postgres
+
+# Appliquer les migrations
+flask db upgrade
+
+# Démarrer le serveur de développement
+python hello.py
+```
+
+#### Frontend (React)
+
+```bash
+cd Classification_Data_Front
+
+npm install
+npm run dev
+```
+
+## Variables d'environnement
+
+### Backend
+| Variable         | Description                              | Valeur par défaut                                     |
+|------------------|------------------------------------------|-------------------------------------------------------|
+| `OPENAI_API_KEY` | Clé API OpenAI pour la classification    | *(obligatoire)*                                       |
+| `DATABASE_URL`   | URI de connexion PostgreSQL              | `postgresql://postgres:postgres@db:5432/postgres`     |
+
+> **Note de sécurité** : La `JWT_SECRET_KEY` est actuellement codée en dur dans [Classification_Data_Back/hello.py](Classification_Data_Back/hello.py). En production, la déplacer dans une variable d'environnement.
+
+## Déploiement CI/CD
+
+Le pipeline GitLab CI ([.gitlab-ci.yml](.gitlab-ci.yml)) déploie automatiquement sur push vers la branche `main` :
+
+1. Copie des fichiers vers le serveur cible via `rsync` (SSH)
+2. Rebuild et redémarrage des conteneurs avec `docker-compose`
+
+### Variables GitLab CI requises
+| Variable          | Description                 |
+|-------------------|-----------------------------|
+| `SSH_PRIVATE_KEY` | Clé privée SSH (ed25519)    |
+| `IP_DU_SERVEUR`   | Adresse IP du serveur cible |
+
+## Structure du frontend
+
+```
+src/
+├── Pages/          # Vues principales (Document, Categorie, Classification, Recherche)
+├── Component/      # Composants réutilisables (Navigation, TableDocument, CategorieTable...)
+├── FormComponent/  # Formulaires (Login, Inscription, Classification)
+├── Api/            # Couche d'appel API (DocumentApi, CategorieApi, UserApi...)
+├── Axios/          # Configuration Axios avec intercepteurs JWT
+├── Routes/         # Gestion des routes protégées (PrivateRoute)
+├── Context/        # Contextes React (Notifications)
+└── Utils/          # Utilitaires (validation de formulaires)
+```
+
+### Pages de l'application
+| Route                       | Page           | Description                                  |
+|-----------------------------|----------------|----------------------------------------------|
+| `/`                         | Home           | Page d'accueil publique                      |
+| `/login`                    | Login          | Connexion                                    |
+| `/signup`                   | Signup         | Inscription                                  |
+| `/Dashboard/document`       | Document       | Gestion des documents                        |
+| `/Dashboard/categorie`      | Categorie      | Gestion des catégories et statistiques       |
+| `/Dashboard/classification` | Classification | Lancement de la classification par IA        |
+| `/Dashboard/Recherche`      | Recherche      | Recherche avancée multi-critères             |
+
+## Formats de fichiers supportés
+
+| Format | Extension | Méthode d'extraction                      |
+|--------|-----------|-------------------------------------------|
+| PDF    | `.pdf`    | PyPDF2 — extraction ligne par ligne       |
+| Word   | `.docx`   | python-docx — respect des styles Heading  |
+| Texte  | `.txt`    | Découpe sur double saut de ligne          |
+
+La taille maximale d'un fichier téléversé est de **16 Mo**.
